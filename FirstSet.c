@@ -1,26 +1,45 @@
 /* (c) Eric and Andrew
  */
 
-#define DEGREES_TO_TURN_RATIO 6.5
+//How many degrees of a wheel turn will turn the entire robot one degree?
+#define DEGREES_TO_TURN_RATIO 4.3
+//How many degrees do we turn to move the robot one centimeter?
 #define CM_TO_TURN_RATIO 360.0/14.0
-//#define FRICTION_CM_TO_TURN_RATIO 360.0/8.5
+//How many degrees do we turn to move the robot one centimeter when the wheels are not in unison?
+#define FRICTION_CM_TO_TURN_RATIO 360.0/13
+//What is the width of the robot in centimeters?
 #define ROBOT_WIDTH 18.5
+//for the three-point turn, what should be the radius of the part-circles we make?
+#define THREE_TURN_RADIUS 10
 
 void pointTurn(int degrees);
 void square(int distance);
 void acceleration(double seconds);
 void goCM(double n);
 void turnaround(double distance, char opt);
+void reverseCircle0(double radius, double degrees);
 void circle0(double radius, double degrees);
 void circle(double radius);
 
 task main()
 {
-	nSyncedMotors = synchBC;
-	nSyncedTurnRatio = 100;
-	motor[motorB] = 100;
-	nMotorEncoder[motorB] = 0;
-	circle(0);
+  acceleration(5);
+  wait1Msec(1000);
+  acceleration(15);
+  wait1Msec(1000);
+  turnaround(20, 'p');
+  wait1Msec(1000);
+  turnaround(10, 'u');
+  wait1Msec(1000);
+  turnaround(30, 't');
+  wait1Msec(1000);
+  square(10);
+  wait1Msec(1000);
+  square(25);
+  wait1Msec(1000);
+  circle(10);
+  wait1Msec(1000);
+  circle(20);
 
 }
 
@@ -46,10 +65,12 @@ void turnaround(double distance, char opt) {
        pointTurn(180);
    }
    else if (opt == 'u') {
-       //do something later regarding u-turns
+       circle0(0, 180); //do a half circle for a U-turn
    }
    else if (opt == 't') {
-      //do something later regarding three-point turns
+      circle0(THREE_TURN_RADIUS, 60); //first half-sort-of-turn for the three-point turn
+      reverseCircle0(THREE_TURN_RADIUS, 60);
+      circle0(THREE_TURN_RADIUS, 65);
    }
    goCM(distance); //returns back to its original place
 }
@@ -62,22 +83,34 @@ void square(int distance)  {
 }
 
 void circle(double radius) {
-   circle0(radius, 360);
+   circle0(radius, 360); //make a circle with radius radius, and go 360 degrees
 }
 
 void circle0(double radius, double degrees) {
-    nSyncedMotors = synchBC;
+    //make a partial circle (arc) with radius radius, and going degrees degress around
+    nSyncedMotors = synchBC; //B shall be the master
+    nSyncedTurnRatio = (int)100 * (radius / (radius + ROBOT_WIDTH)); //ratio is radius over (radius + width of robot)
+    int amountTurn = (int) ((degrees / 360.0) * (2 * PI * (radius + ROBOT_WIDTH))); //the amount the outer wheel turns is (radius / 360) * 2pi(radius+robot width)
+    nMotorEncoder[motorB] = 0; //reset the rotational sensor
+    motor[motorB] = 100; //FULL STEAM AHEAD
+    while(nMotorEncoder[motorB] < amountTurn * FRICTION_CM_TO_TURN_RATIO); //keep going until we reach that amount
+}
+
+void reverseCircle0(double radius, double degrees) {
+    //same as circle0 but reversed so that C is the master and we go backwards
+    nSyncedMotors = synchCB;
     nSyncedTurnRatio = (int)100 * (radius / (radius + ROBOT_WIDTH));
-    int amountTurn = (int) ((degrees / 360.0) * (2 * PI * (radius + ROBOT_WIDTH)));
-    nMotorEncoder[motorB] = 0;
-    motor[motorB] = 100;
-    while(nMotorEncoder[motorB] < amountTurn * CM_TO_TURN_RATIO);
+    int amountTurn = -(int) ((degrees / 360.0) * (2 * PI * (radius + ROBOT_WIDTH)));
+    nMotorEncoder[motorC] = 0;
+    motor[motorC] = -100;
+    while(nMotorEncoder[motorC] > amountTurn * FRICTION_CM_TO_TURN_RATIO);
 }
 
 void pointTurn(int degrees) {
+	//do a turn of degrees degrees on a dime
   nSyncedMotors = synchBC;
   nSyncedTurnRatio = -100; //make one wheel turn exactly opposite the other wheel's direction
-  nMotorEncoder[motorB] = 0;
+  nMotorEncoder[motorB] = 0; //reset the rotational sensor
   motor[motorB] = 100;
   while(nMotorEncoder[motorB] < (int) degrees * DEGREES_TO_TURN_RATIO);
 }
@@ -87,5 +120,5 @@ void goCM(double n) {
     nSyncedTurnRatio = 100;
     nMotorEncoder[motorB] = 0; //reset the rotational sensor
     motor[motorB] = 100; //AHEAD
-    while(nMotorEncoder[motorB] < (int) n * CM_TO_TURN_RATIO); //keep going, magic number is 11
+    while(nMotorEncoder[motorB] < (int) n * CM_TO_TURN_RATIO);
 }
