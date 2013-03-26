@@ -9,13 +9,17 @@ bool armLock; //this will be true if a function is moving the arm.
 
 void calibrateArm();
 task lowerArm();
+task raiseArm();
 
 task main()
 {
 	calibrateArm();
 	StartTask(lowerArm);
+	wait1Msec(4000);
+	StartTask(raiseArm);
 
 
+	while(true);
 }
 
 void calibrateArm() {
@@ -44,5 +48,13 @@ task lowerArm() {
 }
 
 task raiseArm(){
-
+	if (armIsRaised)
+		return;
+	while(armLock);
+	armLock = true;
+	motor[motorA] = 100;
+	while(nMotorEncoder[motorA] < degrees_to_raise_arm);
+	motor[motorA] = 0;
+	armIsRaised = false;
+	armLock = false;
 }
