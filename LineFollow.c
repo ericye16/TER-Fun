@@ -8,6 +8,8 @@ int degrees_to_raise_arm; //set this using calibrateArm
 bool armIsRaised; //this will be true if the arm is raised.
 bool armLock; //this will be true if a function is moving the arm.
 int lightProportion;
+int max_light;
+int min_light;
 
 void calibrateArm();
 task lowerArm();
@@ -18,8 +20,7 @@ task moveOnLine();
 task main()
 {
 	calibrateArm();
-	StartTask(lowerArm);
-	wait1Msec(1000);
+
 	StartTask(detectLine);
 	StartTask(moveOnLine);
 
@@ -47,6 +48,7 @@ task lowerArm() {
 	motor[motorA] = -100;
 	while(!SensorValue(bump));
 	motor[motorA] = 0;
+	nMotorEncoder[motorA] = 0;
 	armIsRaised = false;
 	armLock = false;
 }
@@ -64,14 +66,16 @@ task raiseArm(){
 }
 
 task detectLine() {
+	StartTask(lowerArm);
 	while(true) {
 		lightProportion = SensorValue(beam);
+
 	}
 }
 
 task moveOnLine() {
 	while(true) {
-			motor[motorB] = - lightProportion;
-			motor[motorC] = - (100 - lightProportion);
+			motor[motorB] = (lightProportion > 50) ? -100 : 0;
+			motor[motorC] = (lightProportion <= 50) ? -100 : 0;
 	}
 }
