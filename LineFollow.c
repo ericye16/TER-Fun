@@ -75,7 +75,7 @@ task detectLine() {
 
 task moveOnLine() {
 	while(true) {
-			motor[motorB] = (lightProportion > 50) ? -100 : 0;
-			motor[motorC] = (lightProportion <= 50) ? -100 : 0;
+			motor[motorB] = (lightProportion > 50) ? 60 : 0;
+			motor[motorC] = (lightProportion <= 50) ? 60 : 0;
 	}
 }
