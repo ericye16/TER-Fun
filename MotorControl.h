@@ -1,29 +1,22 @@
-/* (c) Eric and Andrew
- */
+//How many degrees of a wheel turn will turn the entire robot one degree?
+#define DEGREES_TO_TURN_RATIO 3.3
+//How many degrees do we turn to move the robot one centimeter?
+#define CM_TO_TURN_RATIO 360.0/14.0
+//How many degrees do we turn to move the robot one centimeter when the wheels are not in unison?
+#define FRICTION_CM_TO_TURN_RATIO 360.0/13
+//What is the width of the robot in centimeters?
+#define ROBOT_WIDTH 18.5
+//for the three-point turn, what should be the radius of the part-circles we make?
+#define THREE_TURN_RADIUS 10
 
-#include "MotorControl.h"
-
-task main()
-{
-  acceleration(5);
-  wait1Msec(1000);
-  acceleration(15);
-  wait1Msec(1000);
-  turnaround(20, 'p');
-  wait1Msec(1000);
-  turnaround(10, 'u');
-  wait1Msec(1000);
-  turnaround(30, 't');
-  wait1Msec(1000);
-  square(10);
-  wait1Msec(1000);
-  square(25);
-  wait1Msec(1000);
-  circle(10);
-  wait1Msec(1000);
-  circle(20);
-
-}
+void pointTurn(int degrees);
+void square(int distance);
+void acceleration(double seconds);
+void goCM(double n);
+void turnaround(double distance, char opt);
+void reverseCircle0(double radius, double degrees);
+void circle0(double radius, double degrees);
+void circle(double radius);
 
 void acceleration(double seconds) {
    //nSyncedMotors = synchBC; //sync the movement motors
@@ -101,6 +94,11 @@ void goCM(double n) {
     nSyncedMotors = synchBC; //sync the motors
     nSyncedTurnRatio = 100;
     nMotorEncoder[motorB] = 0; //reset the rotational sensor
-    motor[motorB] = 100; //AHEAD
+    int power;
+    if (n > 0) power = 100;
+    if (n < 0) power = -100;
+    motor[motorB] = power; //AHEAD OR BACK
+    if (n > 0)
     while(nMotorEncoder[motorB] < (int) n * CM_TO_TURN_RATIO);
+  	else while(nMotorEncoder[motorB] > (int) n * CM_TO_TURN_RATIO);
 }
