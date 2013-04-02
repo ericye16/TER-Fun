@@ -19,7 +19,7 @@ task moveOnLine();
 
 task main()
 {
-	calibrateArm();
+	//calibrateArm();
 
 	StartTask(detectLine);
 	StartTask(moveOnLine);
@@ -66,7 +66,7 @@ task raiseArm(){
 }
 
 task detectLine() {
-	StartTask(lowerArm);
+	//StartTask(lowerArm);
 	while(true) {
 		lightProportion = SensorValue(beam);
 
@@ -75,7 +75,7 @@ task detectLine() {
 
 task moveOnLine() {
 	while(true) {
-			motor[motorB] = (lightProportion > 50) ? -100 : 0;
-			motor[motorC] = (lightProportion <= 50) ? -100 : 0;
+			motor[motorB] = (lightProportion > 50) ? 100 : -30;
+			motor[motorC] = (lightProportion <= 50) ? 100 : -30;
 	}
 }
