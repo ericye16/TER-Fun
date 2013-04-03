@@ -7,23 +7,23 @@ task moveOnLine();
 
 task main()
 {
-	StartTask(detectLine);
-	StartTask(moveOnLine);
+    StartTask(detectLine);
+    StartTask(moveOnLine);
 
-	while(true);
+    while(true) ;
 }
 
 task detectLine() {
-	//StartTask(lowerArm);
-	while(true) {
-		lightProportion = SensorValue(beam);
+    //StartTask(lowerArm);
+    while(true) {
+        lightProportion = SensorValue(beam);
 
-	}
+    }
 }
 
 task moveOnLine() {
-	while(true) {
-			motor[motorB] = (lightProportion > 50) ? 100 : -20;
-			motor[motorC] = (lightProportion <= 50) ? 100 : -20;
-	}
+    while(true) {
+        motor[motorB] = (lightProportion > 50) ? 100 : -20;
+        motor[motorC] = (lightProportion <= 50) ? 100 : -20;
+    }
 }

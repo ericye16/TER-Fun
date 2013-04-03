@@ -11,38 +11,32 @@
 
 word doINeedToTurn() {
 #ifdef USING_SONAR
-	return (SensorValue(ding) < 10)? 1 : 0;
+    return (SensorValue(ding) < 10) ? 1 : 0;
 #else
-	return SensorValue(boom);
+    return SensorValue(boom);
 #endif
 }
-task main()
-{
-	//pointTurn(90);
-	//word hasBeenBumpedAgain;
-while(true) {
-	nSyncedMotors = synchBC;
-	nSyncedTurnRatio = 100;
-	motor[motorB] = 100;
-	while(!doINeedToTurn());
-	goCM(-BACKOUT_DISTANCE);
-	pointTurn(90);
-	nSyncedMotors = synchBC;
-	nSyncedTurnRatio = 100;
-	nMotorEncoder[motorB] = 0;
-	motor[motorB] = 100;
-	//hasBeenBumpedAgain = 0;
-	while((nMotorEncoder[motorB] < (int) 800) && !doINeedToTurn()) {
-		//hasBeenBumpedAgain = SensorValue(boom);
-	}
-	//now we check if we need to turn again: if we haven't past 20 cm and are here, we've bumped something. So do a 180
-	if (nMotorEncoder[motorB] < (int) 780) {
-		goCM(-BACKOUT_DISTANCE);
-		pointTurn(180);
-	}
+task main(){
+    while(true) {
+        nSyncedMotors = synchBC;
+        nSyncedTurnRatio = 100;
+        motor[motorB] = 100;
+        while(!doINeedToTurn()) ;
+        goCM(-BACKOUT_DISTANCE);
+        pointTurn(90);
+        nSyncedMotors = synchBC;
+        nSyncedTurnRatio = 100;
+        nMotorEncoder[motorB] = 0;
+        motor[motorB] = 100;
 
-}
+        while((nMotorEncoder[motorB] < (int) 800) && !doINeedToTurn()) {
+            //hasBeenBumpedAgain = SensorValue(boom);
+        }
 
-
-
+        //now we check if we need to turn again: if we haven't past 20 cm and are here, we've bumped something. So do a 180
+        if (nMotorEncoder[motorB] < (int) 780) {
+            goCM(-BACKOUT_DISTANCE);
+            pointTurn(180);
+        }
+    }
 }
