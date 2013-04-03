@@ -1,7 +1,7 @@
 //How many degrees of a wheel turn will turn the entire robot one degree?
-#define DEGREES_TO_TURN_RATIO 3.3
+#define DEGREES_TO_TURN_RATIO 3.7
 //How many degrees do we turn to move the robot one centimeter?
-#define CM_TO_TURN_RATIO 360.0/14.0
+#define CM_TO_TURN_RATIO 360.0/13
 //How many degrees do we turn to move the robot one centimeter when the wheels are not in unison?
 #define FRICTION_CM_TO_TURN_RATIO 360.0/13
 //What is the width of the robot in centimeters?
