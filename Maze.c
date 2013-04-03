@@ -6,9 +6,20 @@
 //comment this line out if you want to use the touch sensor instead
 //#define USING_SONAR
 
+//how far do we back out when we bump/see a wall? (in cm)
 #define BACKOUT_DISTANCE 5
+
+//we use the code we wrote last time for motor control
+//defines functions such as goCM() and pointTurn()
 #include "MotorControl.h"
 
+/*Since the code for the maze involving the touch sensor and the
+ * ultrasonic sensor are the same, we use the same code except for
+ * the part that detects whether or not the robots has hit a wall.
+ * We use a function doINeedToTurn(), which will return 1 if the
+ * wall is detected by the ultrasonic sensor in ultrasonic mode,
+ * or the touch sensor is bumped.
+ */
 word doINeedToTurn() {
 #ifdef USING_SONAR
     return (SensorValue(ding) < 10) ? 1 : 0;
@@ -16,24 +27,38 @@ word doINeedToTurn() {
     return SensorValue(boom);
 #endif
 }
+
+
 task main(){
+    //we represent the motion of our robot in an infinite loop
     while(true) {
+        //sync the motors so we move forward together
         nSyncedMotors = synchBC;
         nSyncedTurnRatio = 100;
         motor[motorB] = 100;
-        while(!doINeedToTurn()) ;
+        //keep going until we detect a wall
+        while(!doINeedToTurn());
+        //back out some distance
         goCM(-BACKOUT_DISTANCE);
+        //turn 90 degrees to the right
         pointTurn(90);
+        //resync the motors since they unsync'd during the turn
         nSyncedMotors = synchBC;
         nSyncedTurnRatio = 100;
+        //reset the motor encoder so we know how far we travelled
         nMotorEncoder[motorB] = 0;
         motor[motorB] = 100;
+        //keep going forward until we hit something or pass 800 degrees of motion
+        while((nMotorEncoder[motorB] < (int) 800) && !doINeedToTurn());
+        //if we're done the while because we've passed 800 degrees of motion,
+        //we should move forward.
+        //if we're here because we need to turn, we turned the wrong way earlier
+        //and we should do a 180 to go the other way
 
-        while((nMotorEncoder[motorB] < (int) 800) && !doINeedToTurn()) {
-            //hasBeenBumpedAgain = SensorValue(boom);
-        }
-
-        //now we check if we need to turn again: if we haven't past 20 cm and are here, we've bumped something. So do a 180
+        //if we haven't past 
+        //780 degrees of motion and reach this part of the code, 
+        //we've bumped something.
+        //So do a 180 and turn the other way since that way will be free.
         if (nMotorEncoder[motorB] < (int) 780) {
             goCM(-BACKOUT_DISTANCE);
             pointTurn(180);
